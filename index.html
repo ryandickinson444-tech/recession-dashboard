@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Macro Risk Terminal — Crash / Recession Conditions</title>
+<meta name="description" content="A live-editable dashboard of ~31 recession and crash-risk indicators, benchmarked against the dot-com, 2008, and 2022 analogues. A conditions gauge, not a timing tool." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#0a0d13; --bg2:#0e131c; --panel:#111722; --panelHi:#151c28;
+    --border:#1f2a38; --borderHi:#2a394b;
+    --text:#c4d0e0; --dim:#7d8aa0; --head:#eaf1fb;
+    --flash:#ff5d5d; --elev:#f5a623; --neut:#5b8def; --benign:#3dd68c;
+    --redGlow:rgba(255,93,93,.10); --amberGlow:rgba(245,166,35,.10);
+    --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --disp:'Space Grotesk',system-ui,sans-serif;
+    --body:'Inter',system-ui,-apple-system,sans-serif;
+    --maxw:1180px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:var(--body); font-size:14px; line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    background-image:
+      linear-gradient(rgba(31,42,56,.35) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(31,42,56,.35) 1px,transparent 1px);
+    background-size:44px 44px;
+    background-position:center top;
+  }
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 20px}
+  .mono{font-family:var(--mono)}
+
+  /* ---------- TICKER TAPE ---------- */
+  .ticker{
+    background:#070a0f; border-bottom:1px solid var(--border);
+    overflow:hidden; white-space:nowrap; position:relative;
+  }
+  .ticker-track{display:inline-flex; align-items:center; gap:0; padding:7px 0; animation:scroll 46s linear infinite}
+  .ticker:hover .ticker-track{animation-play-state:paused}
+  @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  .tick{display:inline-flex; align-items:center; gap:8px; padding:0 20px; font-family:var(--mono); font-size:11.5px; border-right:1px solid var(--border)}
+  .tick .k{color:var(--dim)}
+  .tick .v{color:var(--head); font-weight:500}
+  .dot{width:7px; height:7px; border-radius:50%; flex-shrink:0; box-shadow:0 0 7px currentColor}
+
+  /* ---------- HEADER ---------- */
+  header{position:sticky; top:0; z-index:20; background:rgba(10,13,19,.86); backdrop-filter:blur(10px); border-bottom:1px solid var(--border)}
+  .head-inner{display:flex; align-items:center; justify-content:space-between; gap:16px; height:58px}
+  .brand{display:flex; align-items:center; gap:11px}
+  .mark{width:26px; height:26px; display:grid; place-items:center; border:1px solid var(--borderHi); border-radius:6px; background:var(--panel)}
+  .brand b{font-family:var(--disp); font-weight:700; font-size:15px; color:var(--head); letter-spacing:.02em}
+  .brand span{font-size:10.5px; color:var(--dim); font-family:var(--mono); letter-spacing:.06em}
+  nav.anchors{display:flex; gap:22px}
+  nav.anchors a{font-size:12.5px; color:var(--dim); transition:color .15s}
+  nav.anchors a:hover{color:var(--head)}
+  .head-meta{display:flex; align-items:center; gap:14px; font-family:var(--mono); font-size:11.5px; color:var(--dim)}
+  .live{display:inline-flex; align-items:center; gap:6px; color:var(--benign)}
+  .live .dot{background:var(--benign); color:var(--benign); animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+  /* ---------- HERO ---------- */
+  .hero{padding:34px 0 26px}
+  .eyebrow{font-family:var(--mono); font-size:11px; letter-spacing:.16em; color:var(--dim); margin-bottom:12px}
+  .hero-grid{display:grid; grid-template-columns:340px 1fr; gap:26px; align-items:stretch}
+  .gauge-card{background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:22px; position:relative; overflow:hidden}
+  .gauge-card::before{content:""; position:absolute; top:-40%; left:50%; transform:translateX(-50%); width:280px; height:280px; background:radial-gradient(circle,var(--glow,rgba(245,166,35,.16)),transparent 68%); pointer-events:none}
+  .gauge-wrap{position:relative; text-align:center}
+  .gauge-num{font-family:var(--mono); font-weight:600; font-size:56px; line-height:1; letter-spacing:-.02em}
+  .gauge-of{font-size:13px; color:var(--dim); margin-top:2px; font-family:var(--mono)}
+  .gauge-verdict{margin-top:14px; font-size:13px; color:var(--text); line-height:1.5}
+  .gauge-pts{font-family:var(--mono); font-size:11px; color:var(--dim); margin-top:9px}
+
+  .hero-right{display:flex; flex-direction:column; gap:14px}
+  h1{font-family:var(--disp); font-weight:700; font-size:30px; line-height:1.12; letter-spacing:-.015em; color:var(--head); margin:0}
+  h1 .thin{color:var(--dim); font-weight:500}
+  .lede{font-size:14px; color:var(--text); line-height:1.6; max-width:62ch}
+  .delta-strip{background:linear-gradient(90deg,var(--amberGlow),transparent); border:1px solid var(--borderHi); border-radius:10px; padding:13px 16px; font-size:13px; line-height:1.62}
+  .delta-strip .tag{font-family:var(--mono); font-size:10.5px; letter-spacing:.08em; color:var(--elev); font-weight:600; margin-right:8px}
+  .chips{display:flex; flex-wrap:wrap; gap:8px; margin-top:2px}
+  .chip{display:inline-flex; align-items:center; gap:7px; background:var(--bg2); border:1px solid var(--border); border-radius:20px; padding:5px 12px; font-family:var(--mono); font-size:11.5px}
+  .chip .k{color:var(--dim)} .chip .v{color:var(--head)}
+
+  /* ---------- SECTIONS ---------- */
+  section{padding:26px 0}
+  .sec-head{display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:16px; flex-wrap:wrap}
+  .sec-head h2{font-family:var(--disp); font-weight:600; font-size:19px; color:var(--head); margin:0; letter-spacing:-.01em}
+  .sec-head .sub{font-size:12px; color:var(--dim); font-family:var(--mono)}
+  .rule{height:1px; background:linear-gradient(90deg,var(--border),transparent)}
+
+  /* ---------- DISTRIBUTION ---------- */
+  .dist{display:grid; grid-template-columns:1fr 1.4fr; gap:14px}
+  .card{background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:18px}
+  .card-h{font-family:var(--mono); font-size:10.5px; letter-spacing:.12em; color:var(--dim); margin-bottom:14px}
+  .counts{display:grid; grid-template-columns:repeat(4,1fr); gap:10px}
+  .count{background:var(--bg2); border:1px solid var(--border); border-radius:8px; padding:11px 10px; text-align:left; cursor:pointer; transition:all .15s; font-family:inherit}
+  .count:hover{border-color:var(--borderHi)}
+  .count .n{font-family:var(--mono); font-weight:600; font-size:27px; line-height:1}
+  .count .l{font-size:9px; letter-spacing:.08em; color:var(--dim); margin-top:7px; font-family:var(--mono)}
+  .catbars{display:flex; flex-direction:column; gap:10px; margin-top:4px}
+  .catbar{display:flex; align-items:center; gap:12px}
+  .catbar .lab{font-size:12px; color:var(--dim); width:220px; flex-shrink:0}
+  .catbar .track{flex:1; height:7px; background:var(--bg2); border-radius:4px; overflow:hidden}
+  .catbar .fill{height:100%; border-radius:4px; transition:width .35s}
+  .catbar .pct{font-family:var(--mono); font-size:12px; color:var(--text); width:32px; text-align:right}
+
+  /* ---------- CONTROLS ---------- */
+  .controls{display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:12px}
+  .btn{background:var(--bg2); border:1px solid var(--border); color:var(--text); border-radius:7px; padding:7px 13px; font-size:12px; cursor:pointer; font-family:inherit; transition:all .15s}
+  .btn:hover{border-color:var(--borderHi)}
+  .btn.on{background:var(--panelHi); border-color:var(--borderHi)}
+  .btn.changed.on{background:var(--amberGlow); border-color:var(--elev); color:var(--elev)}
+  .hint{margin-left:auto; font-family:var(--mono); font-size:11px; color:var(--dim)}
+
+  /* ---------- BOARD / TABLE ---------- */
+  .board-scroll{overflow-x:auto; border:1px solid var(--border); border-radius:12px; background:var(--panel)}
+  .board{min-width:780px}
+  .thead{display:grid; grid-template-columns:2fr .8fr .5fr 1.5fr 1fr; padding:10px 16px; border-bottom:1px solid var(--border); background:var(--bg2); font-family:var(--mono); font-size:9.5px; letter-spacing:.08em; color:var(--dim)}
+  .thead div:nth-child(2){text-align:right}
+  .thead div:nth-child(3),.thead div:nth-child(4),.thead div:nth-child(5){text-align:center}
+  .catrow{padding:9px 16px 7px; font-family:var(--mono); font-size:10px; letter-spacing:.1em; color:var(--dim); background:var(--bg); border-bottom:1px solid var(--border); font-weight:600}
+  .catrow .realm{opacity:.55; margin-left:8px}
+  .irow{border-bottom:1px solid var(--border)}
+  .irow-top{display:grid; grid-template-columns:2fr .8fr .5fr 1.5fr 1fr; padding:11px 16px; align-items:center}
+  .irow.flash .irow-top{background:var(--redGlow)}
+  .iname{font-size:13px; color:var(--head); font-weight:500}
+  .ival{text-align:right}
+  .ival input{width:70px; background:var(--bg2); border:1px solid var(--border); border-radius:5px; color:var(--text); font-family:var(--mono); font-size:12.5px; text-align:right; padding:4px 7px; transition:border-color .15s}
+  .ival input:focus{outline:none; border-color:var(--neut)}
+  .ival .prev{font-family:var(--mono); font-size:10px; color:var(--dim); margin-top:3px}
+  .idelta{text-align:center; font-size:13px}
+  .ihist{text-align:center; font-family:var(--mono); font-size:11px; color:var(--dim)}
+  .istatus{text-align:center}
+  .istatus select{border-radius:6px; padding:5px 7px; font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:.04em; cursor:pointer; border:1px solid; background:transparent}
+  .inote{padding:0 16px 12px; font-size:12px; color:var(--dim); line-height:1.55; max-width:920px}
+  .empty{padding:26px; text-align:center; color:var(--dim); font-size:13px}
+
+  /* ---------- WEALTH ---------- */
+  .stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin-bottom:14px}
+  .stat{background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:15px}
+  .stat .v{font-family:var(--mono); font-weight:600; font-size:24px; color:var(--neut)}
+  .stat .l{font-size:11.5px; color:var(--dim); margin-top:5px; line-height:1.45}
+  .prose{font-size:13px; color:var(--dim); line-height:1.65; max-width:78ch}
+  .prose b{color:var(--text)}
+
+  /* ---------- METHOD ---------- */
+  .method{background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:20px}
+  .method p{font-size:12.5px; color:var(--dim); line-height:1.66; margin:0 0 9px}
+  .method b{color:var(--text)}
+  .method .discl{border-top:1px solid var(--border); padding-top:12px; margin-top:4px; font-style:italic}
+
+  /* ---------- FOOTER ---------- */
+  footer{border-top:1px solid var(--border); margin-top:14px; padding:22px 0 40px}
+  .foot{display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; font-family:var(--mono); font-size:11px; color:var(--dim)}
+  .foot a:hover{color:var(--text)}
+
+  /* ---------- RESPONSIVE ---------- */
+  @media(max-width:820px){
+    .hero-grid{grid-template-columns:1fr; gap:18px}
+    .dist{grid-template-columns:1fr}
+    nav.anchors{display:none}
+    h1{font-size:24px}
+    .catbar .lab{width:150px; font-size:11px}
+  }
+  @media(max-width:520px){
+    .wrap{padding:0 14px}
+    .head-meta .sp{display:none}
+    .counts{grid-template-columns:repeat(2,1fr)}
+  }
+</style>
+</head>
+<body>
+
+  <!-- TICKER -->
+  <div class="ticker"><div class="ticker-track" id="ticker"></div></div>
+
+  <!-- HEADER -->
+  <header>
+    <div class="wrap head-inner">
+      <div class="brand">
+        <div class="mark">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5b8def" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 15l4-6 4 4 5-9 5 12"/></svg>
+        </div>
+        <div>
+          <b>MACRO RISK TERMINAL</b><br/>
+          <span>CRASH / RECESSION CONDITIONS</span>
+        </div>
+      </div>
+      <nav class="anchors">
+        <a href="#composite">Composite</a>
+        <a href="#board">Indicators</a>
+        <a href="#distribution">Distribution</a>
+        <a href="#wealth">Who it measures</a>
+        <a href="#method">Method</a>
+      </nav>
+      <div class="head-meta">
+        <span class="sp">S&amp;P ~7,575</span>
+        <span class="live"><span class="dot"></span>JUL 10 2026</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO / COMPOSITE -->
+  <div class="wrap" id="composite">
+    <div class="hero">
+      <div class="eyebrow">COMPOSITE CONDITIONS · 31 INDICATORS</div>
+      <div class="hero-grid">
+        <div class="gauge-card" id="gaugeCard">
+          <div class="gauge-wrap">
+            <svg viewBox="0 0 200 116" width="100%" style="max-width:280px">
+              <path d="M14 100 A86 86 0 0 1 186 100" fill="none" stroke="#141c28" stroke-width="14" stroke-linecap="round"/>
+              <path id="gaugeArc" d="M14 100 A86 86 0 0 1 186 100" fill="none" stroke="#f5a623" stroke-width="14" stroke-linecap="round" stroke-dasharray="270" stroke-dashoffset="270" style="transition:stroke-dashoffset .5s ease, stroke .3s"/>
+              <text x="100" y="86" text-anchor="middle" class="mono" id="gaugeNum" fill="#f5a623" style="font-size:38px;font-weight:600">–</text>
+              <text x="100" y="105" text-anchor="middle" fill="#7d8aa0" style="font-family:var(--mono);font-size:10px">/ 100</text>
+            </svg>
+          </div>
+          <div class="gauge-verdict" id="gaugeVerdict">—</div>
+          <div class="gauge-pts" id="gaugePts">—</div>
+        </div>
+
+        <div class="hero-right">
+          <h1>Stretched, <span class="thin">not breaking.</span></h1>
+          <div class="lede">A live-editable board of recession and crash-risk indicators, benchmarked against the dot-com bubble, the 2008 crisis, and the 2022 bear. It counts <b style="color:var(--text)">stretched conditions</b> — it is deliberately not a timing tool.</div>
+          <div class="delta-strip">
+            <span class="tag">Δ SINCE JUN 4</span>
+            Valuations pushed <b style="color:var(--flash)">higher</b> (CAPE 40.7→41.5, Buffett 219→~230). The Fed turned <b style="color:var(--elev)">hawkish</b> — dropped its easing bias, a hike now on the table. Inflation sticky ~4.2%, oil/Iran <b style="color:var(--elev)">re-escalated</b>. But the hard labor data <b style="color:var(--benign)">cooled the trigger</b> (Sahm 0.27→0.10). More expensive, less rate-cut support — no recession light flashing.
+          </div>
+          <div class="chips" id="heroChips"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap"><div class="rule"></div></div>
+
+  <!-- DISTRIBUTION -->
+  <div class="wrap"><section id="distribution">
+    <div class="sec-head">
+      <h2>Signal distribution</h2>
+      <div class="sub">click a tier to filter the board</div>
+    </div>
+    <div class="dist">
+      <div class="card">
+        <div class="card-h">BY SEVERITY</div>
+        <div class="counts" id="counts"></div>
+      </div>
+      <div class="card">
+        <div class="card-h">BY CATEGORY · STRESS %</div>
+        <div class="catbars" id="catBars"></div>
+      </div>
+    </div>
+  </section></div>
+
+  <!-- BOARD -->
+  <div class="wrap"><section id="board">
+    <div class="sec-head">
+      <h2>Indicator board</h2>
+      <div class="sub">edit any NOW cell → gauges recompute live</div>
+    </div>
+    <div class="controls" id="controls">
+      <button class="btn on" data-f="all" onclick="setFilter('all')">All 31</button>
+      <button class="btn" data-f="flashing" onclick="setFilter('flashing')">Flashing</button>
+      <button class="btn" data-f="elevated" onclick="setFilter('elevated')">Elevated</button>
+      <button class="btn" data-f="neutral" onclick="setFilter('neutral')">Neutral</button>
+      <button class="btn" data-f="benign" onclick="setFilter('benign')">Benign</button>
+      <button class="btn changed" id="btnChanged" onclick="toggleChanged()">Δ Changed since Jun 4</button>
+      <span class="hint">values are editable</span>
+    </div>
+    <div class="board-scroll">
+      <div class="board">
+        <div class="thead">
+          <div>INDICATOR</div><div>NOW / JUN 4</div><div>Δ</div><div>DOT-COM / '08 / '22</div><div>STATUS</div>
+        </div>
+        <div id="tableBody"></div>
+      </div>
+    </div>
+  </section></div>
+
+  <!-- WEALTH -->
+  <div class="wrap"><section id="wealth">
+    <div class="sec-head"><h2>Who the market actually measures</h2></div>
+    <div class="stats" id="wealthStats"></div>
+    <div class="prose">
+      The index is essentially a wealth gauge for the top decile. A record S&amp;P sitting next to crisis-level consumer sentiment and rising credit-card delinquency is the <b>K-shaped economy</b> in one frame — the market under-reports both the wealth concentrated at the top <i>and</i> the strain building at the bottom, which historically gets hit hardest through jobs and credit, not stock prices.
+    </div>
+  </section></div>
+
+  <!-- METHOD -->
+  <div class="wrap"><section id="method">
+    <div class="sec-head"><h2>Methodology &amp; honest caveats</h2></div>
+    <div class="method">
+      <p><b>Not a forecast, not market timing.</b> This counts stretched conditions; it cannot tell you <i>when</i>. Expensive markets can stay expensive for years — CAPE and Buffett have flashed "expensive" since roughly 2017.</p>
+      <p><b>These signals lie sometimes.</b> The yield curve re-steepens before recessions but also head-fakes. The LEI signaled a 2024 recession that never came. The Sahm Rule briefly, falsely tripped in 2024. Trust the <i>cluster</i> and the <i>trend</i>, not any single light.</p>
+      <p><b>The tension right now</b> is valuation and monetary (very stretched, hawkish Fed, sticky ~4.2% inflation, a live oil shock) versus the hard data (Sahm benign, claims healthy, LEI positive). Prices are priced for perfection while the Fed can't ease — that's the fragility, more than any single recession trigger.</p>
+      <p><b>Values marked "(est.)" or "STALE"</b> are approximations — overwrite them with live figures and the gauges update. Status auto-computes from numeric thresholds where they exist; use the dropdown to impose your own judgment.</p>
+      <p><b>Sources:</b> FRED / St. Louis Fed (yields, VIX, Sahm), U.S. Treasury (curve), GuruFocus (CAPE, Buffett), Conference Board (LEI), BLS (payrolls, unemployment, claims), Atlanta Fed (GDPNow), U. Michigan (sentiment), FOMC (June minutes), and financial press — as of Jul 10, 2026.</p>
+      <p class="discl">Informational, not financial advice. Not a licensed advisor — use this to inform your own decisions, not to replace them.</p>
+    </div>
+  </section></div>
+
+  <footer>
+    <div class="wrap foot">
+      <div>MACRO RISK TERMINAL · conditions gauge · not a timing tool</div>
+      <div>Updated JUL 10 2026 · rebuilt from the Jun 4 board</div>
+    </div>
+  </footer>
+
+<script>
+const COLORS={bg:"#0a0d13",bg2:"#0e131c",flash:"#ff5d5d",elev:"#f5a623",neut:"#5b8def",benign:"#3dd68c",dim:"#7d8aa0",text:"#c4d0e0",head:"#eaf1fb"};
+const STATUS={
+  flashing:{label:"FLASHING",color:COLORS.flash,pts:3},
+  elevated:{label:"ELEVATED",color:COLORS.elev,pts:2},
+  neutral:{label:"NEUTRAL",color:COLORS.neut,pts:1},
+  benign:{label:"BENIGN",color:COLORS.benign,pts:0},
+};
+const CATS={valuation:"Valuation",internals:"Internals & sentiment",credit:"Yield curve & credit",realecon:"Real economy & labor",macro:"Monetary, inflation & geopolitics"};
+const REALMS={market:"Market / asset-price",real:"Real economy",macro:"Monetary & macro"};
+
+const INDICATORS=[
+ {id:"cape",name:"Shiller CAPE",cat:"valuation",realm:"market",now:"41.5",prev:"40.7",dotcom:"~44",gfc:"~27",y22:"~39",thr:{flash:35,elev:28},dir:"high",status:"flashing",note:"Up from June, second only to the 2000 record (44), vs a ~16-17 median. 'Expensive' is a lousy timer — CAPE has sat >30 for years while stocks rose. GuruFocus now implies ~1% real 10-yr return."},
+ {id:"buffett",name:"Buffett Indicator (Mktcap/GDP)",cat:"valuation",realm:"market",now:"230",prev:"219",dotcom:"~140",gfc:"~105",y22:"~200",thr:{flash:150,elev:120},dir:"high",status:"flashing",note:"~2.3x GDP, a fresh all-time high above the dot-com peak. Buffett called >200% 'playing with fire.' Inflated by mega-cap global revenue, but still extreme."},
+ {id:"fwdpe",name:"S&P 500 forward P/E (est.)",cat:"valuation",realm:"market",now:"23",prev:"22",dotcom:"~24",gfc:"~15",y22:"~21",thr:{flash:21,elev:18},dir:"high",status:"flashing",note:"Rich vs a ~16 long-run norm. Estimate — overwrite with current consensus."},
+ {id:"ttmpe",name:"S&P 500 trailing P/E",cat:"valuation",realm:"market",now:"28.9",prev:"~28",dotcom:"~30",gfc:"~17",y22:"~22",thr:{flash:25,elev:20},dir:"high",status:"flashing",note:"Near dot-com territory on trailing earnings. Bulls counter with 'FEMO' — fabulous earnings momentum — not just multiple expansion."},
+ {id:"erp",name:"Equity risk premium (est.)",cat:"valuation",realm:"market",now:"0",prev:"~0",dotcom:"<0",gfc:"~0",y22:"~1",thr:{flash:1,elev:2},dir:"low",status:"flashing",note:"Stocks barely out-yield ~4.5% Treasuries — a poor setup for forward returns. With the 10-yr at 4.56%, cash/bonds are real competition again."},
+ {id:"impret",name:"Implied 10-yr real return (est.)",cat:"valuation",realm:"market",now:"1.1",prev:"~1",dotcom:"<0",gfc:"~2",y22:"~3",thr:{flash:2,elev:3.5},dir:"low",status:"flashing",note:"Vanguard/Goldman/GuruFocus cluster around ~0-3% real for the next decade from these valuations. Low bar for disappointment."},
+
+ {id:"vix",name:"VIX (volatility)",cat:"internals",realm:"market",now:"16.6",prev:"~18",dotcom:"spiked",gfc:"80+",y22:"30s",thr:null,dir:"high",status:"neutral",note:"Low — ~36th percentile of the trailing year. No stress priced in, but complacency is a mild yellow: the market is not hedged for a surprise in either direction."},
+ {id:"concentration",name:"Market concentration (top-10 share)",cat:"internals",realm:"market",now:"extreme",prev:"extreme",dotcom:"high",gfc:"moderate",y22:"high",thr:null,dir:"high",status:"flashing",note:"A handful of mega-caps ('Mag-7'/AI) drive a disproportionate share of gains vs a smaller share of earnings — the classic narrow-leadership pattern seen before prior tops."},
+ {id:"sentiment",name:"Consumer sentiment (UMich)",cat:"internals",realm:"real",now:"44.8",prev:"~50",dotcom:"~105",gfc:"~55",y22:"~50",thr:{flash:55,elev:70},dir:"low",status:"flashing",note:"Crisis-level pessimism, below even 2008/2022 lows — a striking split from record equity prices. The K-shaped economy in one number."},
+ {id:"aicapex",name:"AI capex / speculation",cat:"internals",realm:"market",now:"~$700B",prev:"elevated",dotcom:"telecom",gfc:"housing",y22:"SPACs",thr:null,dir:"high",status:"elevated",note:"~$700B of AI capex projected this year, some firms tapping debt as spend outstrips cash flow — echoes of late-90s infra overbuild. Could also be genuinely productive; that's the debate."},
+ {id:"breadth",name:"Breadth (equal- vs cap-weight)",cat:"internals",realm:"market",now:"narrow",prev:"narrow",dotcom:"narrow",gfc:"narrow",y22:"narrow",thr:null,dir:"high",status:"elevated",note:"Rotation days where most S&P names rise while the cap-weighted index falls on chip weakness — leadership is thin and jumpy."},
+ {id:"btc",name:"Bitcoin (risk appetite, est.)",cat:"internals",realm:"market",now:"~$63k",prev:"~$63k",dotcom:"n/a",gfc:"n/a",y22:"~$16k",thr:null,dir:"low",status:"neutral",note:"STALE — verify. Was ~$63-64k in June after a large drawdown from the 2025 peak. Crypto is the clearest risk-appetite tell; update before relying on it."},
+
+ {id:"t10y2y",name:"Yield curve 10Y-2Y",cat:"credit",realm:"macro",now:"0.35",prev:"~0.2",dotcom:"inverted",gfc:"inverted",y22:"inverted",thr:{flash:0,elev:0.3},dir:"low",status:"benign",note:"Positive (+36bp) and steepening — no inversion signal. BUT the curve typically re-steepens just before recessions after un-inverting, so 'positive' isn't all-clear on its own."},
+ {id:"t10y3m",name:"Yield curve 10Y-3M",cat:"credit",realm:"macro",now:"0.69",prev:"~0.4",dotcom:"inverted",gfc:"inverted",y22:"inverted",thr:{flash:0,elev:0.3},dir:"low",status:"benign",note:"The Fed's preferred curve measure, comfortably positive (+69bp). Swung in and out of inversion during 2025; now cleanly positive."},
+ {id:"hyoas",name:"High-yield credit spread (OAS, est.)",cat:"credit",realm:"macro",now:"3.0",prev:"~3.2",dotcom:"widened",gfc:"~20",y22:"~6",thr:{flash:6,elev:4.5},dir:"high",status:"benign",note:"Tight — credit markets are sanguine, itself late-cycle complacency. Spreads gap wider fast when stress hits; watch the change, not the level. Estimate — overwrite with live ICE BofA HY OAS."},
+ {id:"sloos",name:"Bank lending standards (SLOOS)",cat:"credit",realm:"macro",now:"8",prev:"~8",dotcom:"tightening",gfc:"severe",y22:"tightening",thr:{flash:40,elev:20},dir:"high",status:"neutral",note:"~+8% net tightening — modest, consistent with a slowdown rather than a credit crunch."},
+ {id:"nfci",name:"Financial conditions (Chicago Fed NFCI)",cat:"credit",realm:"macro",now:"-0.50",prev:"~-0.4",dotcom:"tight",gfc:"very tight",y22:"tightening",thr:{flash:0.5,elev:0},dir:"high",status:"benign",note:"Loose (negative = accommodative). A big reason equities hold up while parts of the real economy soften — credit is still flowing."},
+ {id:"htm",name:"Bank unrealized (HTM) losses",cat:"credit",realm:"macro",now:"~$5.1T",prev:"~$5T",dotcom:"n/a",gfc:"MBS",y22:"rising",thr:null,dir:"high",status:"elevated",note:"Large held-to-maturity paper losses remain a tail risk: a sudden funding shock or deposit flight could force selling (the 2023 SVB channel). Latent, not active."},
+
+ {id:"sahm",name:"Sahm Rule",cat:"realecon",realm:"real",now:"0.10",prev:"0.27",dotcom:"triggered",gfc:"triggered",y22:"~0",thr:{flash:0.5,elev:0.35},dir:"high",status:"benign",note:"IMPROVED since June — back near baseline (peaked 0.43 in Nov 2025, the scare passed). Triggers a recession call at 0.50. Briefly, falsely tripped in 2024, so it's not infallible."},
+ {id:"unemp",name:"Unemployment rate (U3)",cat:"realecon",realm:"real",now:"4.2",prev:"~4.3",dotcom:"rose",gfc:"10",y22:"3.5",thr:{flash:5,elev:4.5},dir:"high",status:"neutral",note:"4.2%, roughly flat-to-slightly-up. Low in absolute terms; the direction and pace matter more than the level for recession signaling."},
+ {id:"payrolls",name:"Nonfarm payrolls (monthly)",cat:"realecon",realm:"real",now:"57",prev:"~120",dotcom:"negative",gfc:"negative",y22:"strong",thr:{flash:0,elev:100},dir:"low",status:"elevated",note:"+57k in June — a real slowdown (ADP +98k, also soft). Sub-100k prints are a classic yellow flag if they repeat; one month isn't a trend."},
+ {id:"claims",name:"Initial jobless claims",cat:"realecon",realm:"real",now:"215",prev:"~220",dotcom:"rose",gfc:"600+",y22:"low",thr:{flash:300,elev:260},dir:"high",status:"benign",note:"~215k — still healthy. The timeliest labor read; a sustained move toward 260-300k would be the early warning."},
+ {id:"lei",name:"Conference Board LEI",cat:"realecon",realm:"real",now:"0.1",prev:"~-0.1",dotcom:"negative",gfc:"negative",y22:"negative",thr:{flash:-3,elev:-1},dir:"low",status:"neutral",note:"Ticked +0.1% in May (level ~99.3), no longer confirming imminent recession. Caveat: the LEI screamed 'recession' through 2023-24 and was wrong — treat with skepticism."},
+ {id:"gdpnow",name:"Atlanta Fed GDPNow (Q2)",cat:"realecon",realm:"real",now:"1.5",prev:"~2",dotcom:"slowing",gfc:"negative",y22:"positive",thr:{flash:0,elev:1},dir:"low",status:"neutral",note:"Tracking ~1.2-1.8% and drifting down as data softens — positive but below trend. Growth losing momentum, not contracting."},
+ {id:"jolts",name:"Job openings (JOLTS)",cat:"realecon",realm:"real",now:"7.6",prev:"~7.4",dotcom:"n/a",gfc:"falling",y22:"11+",thr:{flash:6,elev:7},dir:"low",status:"benign",note:"7.6M openings, firmer than the ~7.3M expected — labor demand has stopped bleeding, which keeps the Fed cautious."},
+ {id:"savings",name:"Personal savings rate",cat:"realecon",realm:"real",now:"3.0",prev:"~3.5",dotcom:"moderate",gfc:"rose",y22:"low",thr:{flash:2,elev:4},dir:"low",status:"elevated",note:"~3% — a thin cushion. Less shock-absorption if unemployment rises or credit tightens."},
+ {id:"ccdelinq",name:"Credit card delinquency",cat:"realecon",realm:"real",now:"2.9",prev:"~2.8",dotcom:"moderate",gfc:"high",y22:"low",thr:{flash:5,elev:3.5},dir:"high",status:"neutral",note:"~2.9% and grinding higher — bottom-tier consumer stress building beneath the surface, consistent with the K-shaped split."},
+
+ {id:"fedfunds",name:"Fed funds target (mid)",cat:"macro",realm:"macro",now:"3.625",prev:"3.625",dotcom:"cutting",gfc:"cutting",y22:"hiking",thr:null,dir:"high",status:"elevated",note:"CHANGED TONE since June: held 3.50-3.75% (unanimous), but dropped the easing bias, and a few members floated a HIKE. Median end-'26 dot lifted to 3.8%. Not the rate-cut backdrop the market wanted."},
+ {id:"cpi",name:"CPI inflation (YoY)",cat:"macro",realm:"macro",now:"4.2",prev:"~3.5",dotcom:"moderate",gfc:"falling",y22:"9",thr:{flash:5,elev:3},dir:"high",status:"elevated",note:"~4.2% and sticky — more than double the Fed's 2% goal. Tariffs, supply chains, AI-driven demand and oil all pulling upward, which is why the Fed can't ease."},
+ {id:"oil",name:"Oil / WTI crude",cat:"macro",realm:"macro",now:"72",prev:"~96",dotcom:"spiked",gfc:"spiked",y22:"120",thr:{flash:100,elev:80},dir:"high",status:"neutral",note:"~$72, off the ~$96 June war spike but re-firming: US revoked Iran's oil-sale license and hostilities resumed. An oil shock is both a growth tax AND an inflation impulse — the worst combo for the Fed."},
+ {id:"geopol",name:"Geopolitical risk (US-Iran / Hormuz)",cat:"macro",realm:"macro",now:"severe",prev:"high",dotcom:"low",gfc:"low",y22:"Ukraine",thr:null,dir:"high",status:"elevated",note:"Strait of Hormuz threat level rated 'severe' after tanker attacks; on-again/off-again US-Iran strikes with talks in parallel. Markets treat it as noise — until they don't."},
+];
+
+let state=INDICATORS.map(d=>({...d,override:null}));
+let filter="all", showChanged=false;
+
+function computeStatus(ind,raw){
+  if(!ind.thr) return ind.status;
+  const v=parseFloat(String(raw).replace(/[^0-9.\-]/g,""));
+  if(isNaN(v)) return ind.status;
+  const {flash,elev}=ind.thr;
+  if(ind.dir==="high"){
+    if(v>=flash) return "flashing";
+    if(v>=elev) return "elevated";
+    return v>=elev*0.6?"neutral":"benign";
+  } else {
+    if(v<=flash) return "flashing";
+    if(v<=elev) return "elevated";
+    return v<=elev*1.6?"neutral":"benign";
+  }
+}
+const statusOf=ind=>ind.override||computeStatus(ind,ind.now);
+const gaugeColorFor=p=>p>=66?COLORS.flash:p>=40?COLORS.elev:p>=20?COLORS.neut:COLORS.benign;
+
+function score(){const pts=state.reduce((s,r)=>s+STATUS[statusOf(r)].pts,0);const max=state.length*3;return{pts,max,pct:Math.round(pts/max*100)};}
+function counts(){const c={flashing:0,elevated:0,neutral:0,benign:0};state.forEach(r=>c[statusOf(r)]++);return c;}
+function catData(){const o={};Object.keys(CATS).forEach(c=>{const rs=state.filter(r=>r.cat===c);const pts=rs.reduce((s,r)=>s+STATUS[statusOf(r)].pts,0);o[c]={pct:rs.length?Math.round(pts/(rs.length*3)*100):0};});return o;}
+
+/* ---- TICKER (built once) ---- */
+function buildTicker(){
+  const keys=["cape","buffett","vix","t10y2y","sahm","unemp","payrolls","cpi","fedfunds","oil","sentiment","hyoas"];
+  const items=keys.map(k=>{const r=state.find(x=>x.id===k);const st=STATUS[statusOf(r)];
+    return `<span class="tick"><span class="dot" style="background:${st.color};color:${st.color}"></span><span class="k">${r.name.split(" (")[0]}</span><span class="v">${r.now}</span></span>`;}).join("");
+  document.getElementById("ticker").innerHTML=items+items; // duplicate for seamless loop
+}
+
+/* ---- GAUGE ---- */
+function renderGauge(){
+  const s=score();const col=gaugeColorFor(s.pct);
+  const LEN=270;const arc=document.getElementById("gaugeArc");
+  arc.setAttribute("stroke",col);
+  arc.setAttribute("stroke-dashoffset",LEN*(1-s.pct/100));
+  const num=document.getElementById("gaugeNum");num.textContent=s.pct;num.setAttribute("fill",col);
+  document.getElementById("gaugeVerdict").textContent=
+    s.pct>=66?"Broadly stretched across the board.":
+    s.pct>=40?"Elevated — rich prices, benign hard data.":
+    s.pct>=20?"Mixed / mid-cycle.":"Broadly benign.";
+  document.getElementById("gaugePts").textContent=`${s.pts} of ${s.max} risk points · ${counts().flashing} flashing`;
+  document.getElementById("gaugeCard").style.setProperty("--glow",col+"28");
+}
+
+/* ---- COUNTS ---- */
+function renderCounts(){
+  const c=counts();
+  document.getElementById("counts").innerHTML=Object.keys(STATUS).map(k=>{
+    const on=filter===k&&!showChanged;
+    return `<button class="count" onclick="setFilter('${k}')" style="${on?`background:${STATUS[k].color}22;border-color:${STATUS[k].color}`:""}">
+      <div class="n" style="color:${STATUS[k].color}">${c[k]}</div>
+      <div class="l">${STATUS[k].label}</div></button>`;
+  }).join("");
+}
+
+/* ---- CATEGORY BARS ---- */
+function renderCatBars(){
+  const cd=catData();
+  document.getElementById("catBars").innerHTML=Object.keys(CATS).map(c=>{
+    const p=cd[c].pct;const col=gaugeColorFor(p);
+    return `<div class="catbar"><div class="lab">${CATS[c]}</div>
+      <div class="track"><div class="fill" style="width:${p}%;background:${col}"></div></div>
+      <div class="pct">${p}</div></div>`;
+  }).join("");
+}
+
+/* ---- WEALTH ---- */
+function renderWealth(){
+  const cards=[
+    {v:"~54%",l:"of the stock market owned by the top 1%"},
+    {v:"~87-90%",l:"of all equities owned by the top 10%"},
+    {v:"44.8",l:"UMich consumer sentiment — crisis-level"},
+    {v:"~3%",l:"personal savings rate — thin cushion"},
+  ];
+  document.getElementById("wealthStats").innerHTML=cards.map(s=>`<div class="stat"><div class="v">${s.v}</div><div class="l">${s.l}</div></div>`).join("");
+}
+
+/* ---- HERO CHIPS ---- */
+function renderChips(){
+  const ids=["cape","buffett","cpi","fedfunds","sahm","oil"];
+  document.getElementById("heroChips").innerHTML=ids.map(id=>{const r=state.find(x=>x.id===id);const st=STATUS[statusOf(r)];
+    return `<span class="chip"><span class="dot" style="background:${st.color};color:${st.color}"></span><span class="k">${r.name.split(" (")[0]}</span><span class="v">${r.now}</span></span>`;}).join("");
+}
+
+/* ---- TABLE ---- */
+function renderTable(){
+  const body=document.getElementById("tableBody");
+  const visible=state.filter(r=>{
+    if(showChanged) return r.now!==r.prev;
+    if(filter==="all") return true;
+    return statusOf(r)===filter;
+  });
+  let html="";
+  Object.keys(CATS).forEach(cat=>{
+    const rows=visible.filter(r=>r.cat===cat);
+    if(!rows.length) return;
+    html+=`<div class="catrow">${CATS[cat].toUpperCase()}<span class="realm">· ${REALMS[rows[0].realm]}</span></div>`;
+    rows.forEach(r=>{
+      const st=STATUS[statusOf(r)];const changed=r.now!==r.prev;
+      html+=`<div class="irow ${statusOf(r)==='flashing'?'flash':''}" id="row-${r.id}">
+        <div class="irow-top">
+          <div class="iname">${r.name}</div>
+          <div class="ival">
+            <input value="${r.now}" oninput="onVal('${r.id}',this.value)"/>
+            <div class="prev">${r.prev}</div>
+          </div>
+          <div class="idelta" id="delta-${r.id}" style="color:${changed?COLORS.elev:COLORS.dim};opacity:${changed?1:.35}">${changed?"▲":"—"}</div>
+          <div class="ihist">${r.dotcom} / ${r.gfc} / ${r.y22}</div>
+          <div class="istatus">
+            <select id="sel-${r.id}" onchange="onOverride('${r.id}',this.value)" style="color:${st.color};border-color:${st.color};background:${st.color}1e">
+              ${Object.keys(STATUS).map(k=>`<option value="${k}" ${statusOf(r)===k?"selected":""} style="background:#111722;color:#c4d0e0">${STATUS[k].label}</option>`).join("")}
+            </select>
+          </div>
+        </div>
+        <div class="inote">${r.note}</div>
+      </div>`;
+    });
+  });
+  body.innerHTML=html||`<div class="empty">No indicators match this filter.</div>`;
+}
+
+/* ---- PATCH A SINGLE ROW (keeps input focus) ---- */
+function patchRow(id){
+  const r=state.find(x=>x.id===id);const st=STATUS[statusOf(r)];const changed=r.now!==r.prev;
+  const row=document.getElementById("row-"+id);
+  if(row) row.classList.toggle("flash",statusOf(r)==="flashing");
+  const d=document.getElementById("delta-"+id);
+  if(d){d.textContent=changed?"▲":"—";d.style.color=changed?COLORS.elev:COLORS.dim;d.style.opacity=changed?1:.35;}
+  const sel=document.getElementById("sel-"+id);
+  if(sel){sel.value=statusOf(r);sel.style.color=st.color;sel.style.borderColor=st.color;sel.style.background=st.color+"1e";}
+}
+
+function recompute(){renderGauge();renderCounts();renderCatBars();buildTicker();}
+
+/* ---- HANDLERS ---- */
+window.onVal=(id,val)=>{const r=state.find(x=>x.id===id);r.now=val;patchRow(id);recompute();};
+window.onOverride=(id,val)=>{const r=state.find(x=>x.id===id);r.override=(val===computeStatus(r,r.now))?null:val;patchRow(id);recompute();};
+window.setFilter=f=>{showChanged=false;filter=(filter===f&&f!=="all")?"all":f;syncControls();renderTable();renderCounts();};
+window.toggleChanged=()=>{showChanged=!showChanged;if(showChanged)filter="all";syncControls();renderTable();renderCounts();};
+function syncControls(){
+  document.querySelectorAll("#controls .btn[data-f]").forEach(b=>b.classList.toggle("on",!showChanged&&b.dataset.f===filter));
+  document.getElementById("btnChanged").classList.toggle("on",showChanged);
+}
+
+/* ---- INIT ---- */
+buildTicker();renderGauge();renderCounts();renderCatBars();renderWealth();renderChips();renderTable();syncControls();
+</script>
+</body>
+</html>
