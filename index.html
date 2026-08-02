@@ -159,6 +159,36 @@
   .foot{display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; font-family:var(--mono); font-size:11px; color:var(--dim)}
   .foot a:hover{color:var(--text)}
 
+
+  /* ---------- TOOLBAR / SELECTS ---------- */
+  .tool{display:flex; align-items:center; gap:7px; background:var(--bg2); border:1px solid var(--border); border-radius:7px; padding:5px 10px}
+  .tool label{font-family:var(--mono); font-size:10px; letter-spacing:.06em; color:var(--dim)}
+  .tool select{background:transparent; border:none; color:var(--head); font-family:var(--mono); font-size:11.5px; cursor:pointer; outline:none}
+  .tool select option{background:var(--panel); color:var(--text)}
+  .weight-note{font-size:11.5px; color:var(--dim); line-height:1.55; margin:8px 0 12px; padding-left:11px; border-left:2px solid var(--borderHi); max-width:80ch}
+  .toast{position:fixed; bottom:22px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--panelHi); border:1px solid var(--borderHi); color:var(--head); border-radius:8px; padding:10px 18px; font-size:12.5px; opacity:0; pointer-events:none; transition:all .25s; z-index:60}
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+
+  /* ---------- STALE BADGE ---------- */
+  .badge{display:inline-block; font-family:var(--mono); font-size:8.5px; letter-spacing:.07em; padding:2px 5px; border-radius:4px; margin-left:7px; vertical-align:middle; border:1px solid}
+  .badge.stale{color:var(--elev); border-color:rgba(245,166,35,.45); background:rgba(245,166,35,.10)}
+
+  /* ---------- CATALYSTS ---------- */
+  .cat-list{display:flex; flex-direction:column; gap:1px}
+  .cat-item{display:grid; grid-template-columns:74px 1fr auto; gap:12px; align-items:center; padding:10px 2px; border-bottom:1px solid var(--border)}
+  .cat-item:last-child{border-bottom:none}
+  .cat-date{font-family:var(--mono); font-size:11.5px; color:var(--head)}
+  .cat-name{font-size:12.5px; color:var(--text)}
+  .cat-why{font-size:11px; color:var(--dim); margin-top:2px; line-height:1.45}
+  .cat-imp{font-family:var(--mono); font-size:9px; letter-spacing:.06em; padding:3px 7px; border-radius:4px; border:1px solid; white-space:nowrap}
+
+  /* ---------- HISTORY ---------- */
+  .hist-empty{font-size:12px; color:var(--dim); line-height:1.6; padding:14px 0}
+  .snap-row{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:7px 0; border-bottom:1px solid var(--border); font-family:var(--mono); font-size:11.5px}
+  .snap-row:last-child{border-bottom:none}
+  .snap-del{background:none; border:none; color:var(--dim); cursor:pointer; font-size:14px; line-height:1; padding:0 4px}
+  .snap-del:hover{color:var(--flash)}
+
   /* ---------- RESPONSIVE ---------- */
   @media(max-width:820px){
     .hero-grid{grid-template-columns:1fr; gap:18px}
@@ -196,11 +226,12 @@
         <a href="#board">Indicators</a>
         <a href="#distribution">Distribution</a>
         <a href="#wealth">Who it measures</a>
+        <a href="#watch">Catalysts</a>
         <a href="#method">Method</a>
       </nav>
       <div class="head-meta">
-        <span class="sp">S&amp;P ~7,515</span>
-        <span class="live"><span class="dot"></span>JUL 13 2026</span>
+        <span class="sp">S&amp;P ~7,490</span>
+        <span class="live"><span class="dot"></span>AUG 2 2026</span>
       </div>
     </div>
   </header>
@@ -224,11 +255,11 @@
         </div>
 
         <div class="hero-right">
-          <h1>Stretched, <span class="thin">not breaking.</span></h1>
+          <h1>Disinflation <span class="thin">meets an oil shock.</span></h1>
           <div class="lede">A live-editable board of recession and crash-risk indicators, benchmarked against the dot-com bubble, the 2008 crisis, and the 2022 bear. It counts <b style="color:var(--text)">stretched conditions</b> — it is deliberately not a timing tool.</div>
           <div class="delta-strip">
-            <span class="tag">Δ SINCE JUN 4</span>
-            Valuations pushed <b style="color:var(--flash)">higher</b> (CAPE 40.7→41.5, Buffett 219→~230). The Fed turned <b style="color:var(--elev)">hawkish</b> — dropped its easing bias, a hike now on the table. Inflation sticky ~4.2%, oil/Iran <b style="color:var(--elev)">re-escalated</b>. But the hard labor data <b style="color:var(--benign)">cooled the trigger</b> (Sahm 0.27→0.10). More expensive, less rate-cut support — no recession light flashing.
+            <span class="tag">Δ SINCE JUL 13</span>
+            Inflation broke <b style="color:var(--benign)">lower</b> — CPI 4.2%→3.5%, core to 2.6%, the biggest monthly drop since 2020. But oil ripped <b style="color:var(--elev)">$75→~$85</b> as the Iran conflict reignited, and the Fed held with <b style="color:var(--flash)">three dissents for a hike</b> — the most one-directional dissents since 2016, with ~61% odds now priced for September. Breadth quietly <b style="color:var(--benign)">broadened</b> (equal-weight +6% over three months while the Mag-7 fell ~5%). New tension: real disinflation racing a live energy shock, with a Fed leaning toward tightening.
           </div>
           <div class="chips" id="heroChips"></div>
         </div>
@@ -268,15 +299,48 @@
       <button class="btn" data-f="elevated" onclick="setFilter('elevated')">Elevated</button>
       <button class="btn" data-f="neutral" onclick="setFilter('neutral')">Neutral</button>
       <button class="btn" data-f="benign" onclick="setFilter('benign')">Benign</button>
-      <button class="btn changed" id="btnChanged" onclick="toggleChanged()">Δ Changed since Jun 4</button>
-      <span class="hint">values are editable</span>
+      <button class="btn changed" id="btnChanged" onclick="toggleChanged()">Δ Changed since Jul 13</button>
+      <span class="hint">values are editable · saved locally</span>
     </div>
+    <div class="controls">
+      <div class="tool">
+        <label>COMPARE VS</label>
+        <select id="cmpSelect" onchange="setCompare(this.value)"></select>
+      </div>
+      <div class="tool">
+        <label>WEIGHTING</label>
+        <select id="wSelect" onchange="setWeight(this.value)"></select>
+      </div>
+      <button class="btn" onclick="saveSnapshot()">＋ Save snapshot</button>
+      <button class="btn" onclick="copySummary()">⧉ Copy summary</button>
+      <button class="btn" onclick="resetAll()">↺ Reset</button>
+    </div>
+    <div class="weight-note" id="weightNote"></div>
     <div class="board-scroll">
       <div class="board">
         <div class="thead">
-          <div>INDICATOR</div><div>NOW / JUN 4</div><div>Δ</div><div>DOT-COM / '08 / '22</div><div>STATUS</div>
+          <div>INDICATOR</div><div>NOW / JUL 13</div><div>Δ</div><div>DOT-COM / '08 / '22</div><div>STATUS</div>
         </div>
         <div id="tableBody"></div>
+      </div>
+    </div>
+  </section></div>
+
+  <!-- CATALYSTS + HISTORY -->
+  <div class="wrap"><section id="watch">
+    <div class="sec-head">
+      <h2>What moves the board next</h2>
+      <div class="sub">scheduled catalysts &amp; your saved history</div>
+    </div>
+    <div class="dist">
+      <div class="card">
+        <div class="card-h">UPCOMING CATALYSTS</div>
+        <div class="cat-list" id="catalysts"></div>
+      </div>
+      <div class="card">
+        <div class="card-h">COMPOSITE HISTORY</div>
+        <div id="histChart"></div>
+        <div id="snapList"></div>
       </div>
     </div>
   </section></div>
@@ -296,9 +360,9 @@
     <div class="method">
       <p><b>Not a forecast, not market timing.</b> This counts stretched conditions; it cannot tell you <i>when</i>. Expensive markets can stay expensive for years — CAPE and Buffett have flashed "expensive" since roughly 2017.</p>
       <p><b>These signals lie sometimes.</b> The yield curve re-steepens before recessions but also head-fakes. The LEI signaled a 2024 recession that never came. The Sahm Rule briefly, falsely tripped in 2024. Trust the <i>cluster</i> and the <i>trend</i>, not any single light.</p>
-      <p><b>The tension right now</b> is valuation and monetary (very stretched, hawkish Fed, sticky ~4.2% inflation, a live oil shock) versus the hard data (Sahm benign, claims healthy, LEI positive). Prices are priced for perfection while the Fed can't ease — that's the fragility, more than any single recession trigger.</p>
+      <p><b>The tension right now</b> has changed shape. Inflation actually broke lower (CPI 3.5%, core 2.6%) and the hard data stayed solid (claims fell to ~197k, Sahm benign, Q2 GDP +1.5%) — but oil rebounded to ~$85, three Fed officials dissented for a hike, and valuations never corrected. So the fragility is no longer 'recession is coming'; it's that a record-priced market is betting on disinflation while the energy shock that could reverse it is actively unfolding.</p>
       <p><b>Values marked "(est.)" or "STALE"</b> are approximations — overwrite them with live figures and the gauges update. Status auto-computes from numeric thresholds where they exist; use the dropdown to impose your own judgment.</p>
-      <p><b>Sources:</b> FRED / St. Louis Fed (yields, VIX, Sahm), U.S. Treasury (curve), GuruFocus (CAPE, Buffett), Conference Board (LEI), BLS (payrolls, unemployment, claims), Atlanta Fed (GDPNow), U. Michigan (sentiment), FOMC (June minutes), and financial press — as of Jul 13, 2026.</p>
+      <p><b>Sources:</b> FRED / St. Louis Fed (yields, VIX, Sahm), U.S. Treasury (curve), GuruFocus (CAPE, Buffett), Conference Board (LEI), BLS (payrolls, unemployment, claims), Atlanta Fed (GDPNow), U. Michigan (sentiment), FOMC (July 29 decision), BEA (Q2 GDP, core PCE), and financial press — as of Aug 2, 2026 (last close Jul 31).</p>
       <p class="discl">Informational, not financial advice. Not a licensed advisor — use this to inform your own decisions, not to replace them.</p>
     </div>
   </section></div>
@@ -306,7 +370,7 @@
   <footer>
     <div class="wrap foot">
       <div>MACRO RISK TERMINAL · conditions gauge · not a timing tool</div>
-      <div>Updated JUL 13 2026 · rebuilt from the Jun 4 board</div>
+      <div>Updated AUG 2 2026 · baseline reset to Jul 13</div>
     </div>
   </footer>
 
@@ -322,45 +386,76 @@ const CATS={valuation:"Valuation",internals:"Internals & sentiment",credit:"Yiel
 const REALMS={market:"Market / asset-price",real:"Real economy",macro:"Monetary & macro"};
 
 const INDICATORS=[
- {id:"cape",name:"Shiller CAPE",cat:"valuation",realm:"market",now:"41.5",prev:"40.7",dotcom:"~44",gfc:"~27",y22:"~39",thr:{flash:35,elev:28},dir:"high",status:"flashing",note:"Up from June, second only to the 2000 record (44), vs a ~16-17 median. 'Expensive' is a lousy timer — CAPE has sat >30 for years while stocks rose. GuruFocus now implies ~1% real 10-yr return."},
- {id:"buffett",name:"Buffett Indicator (Mktcap/GDP)",cat:"valuation",realm:"market",now:"230",prev:"219",dotcom:"~140",gfc:"~105",y22:"~200",thr:{flash:150,elev:120},dir:"high",status:"flashing",note:"~2.3x GDP, a fresh all-time high above the dot-com peak. Buffett called >200% 'playing with fire.' Inflated by mega-cap global revenue, but still extreme."},
- {id:"fwdpe",name:"S&P 500 forward P/E",cat:"valuation",realm:"market",now:"21.3",prev:"22",dotcom:"~24",gfc:"~15",y22:"~21",thr:{flash:21,elev:18},dir:"high",status:"flashing",note:"~21.3x (S&P forward P/E, late June) — roughly a 7-8% premium to its 10-yr average. Q2 earnings season kicks off this week as the big banks report; 2026 S&P EPS growth is pegged near +23%, a high bar that leaves little room for guidance disappointment."},
- {id:"ttmpe",name:"S&P 500 trailing P/E",cat:"valuation",realm:"market",now:"28.9",prev:"~28",dotcom:"~30",gfc:"~17",y22:"~22",thr:{flash:25,elev:20},dir:"high",status:"flashing",note:"Near dot-com territory on trailing earnings. Bulls counter with 'FEMO' — fabulous earnings momentum — not just multiple expansion."},
- {id:"erp",name:"Equity risk premium (est.)",cat:"valuation",realm:"market",now:"0",prev:"~0",dotcom:"<0",gfc:"~0",y22:"~1",thr:{flash:1,elev:2},dir:"low",status:"flashing",note:"Stocks barely out-yield ~4.5% Treasuries — a poor setup for forward returns. With the 10-yr at 4.56%, cash/bonds are real competition again."},
- {id:"impret",name:"Implied 10-yr real return (est.)",cat:"valuation",realm:"market",now:"1.1",prev:"~1",dotcom:"<0",gfc:"~2",y22:"~3",thr:{flash:2,elev:3.5},dir:"low",status:"flashing",note:"Vanguard/Goldman/GuruFocus cluster around ~0-3% real for the next decade from these valuations. Low bar for disappointment."},
+ {id:"cape",name:"Shiller CAPE",cat:"valuation",realm:"market",now:"41.5",prev:"41.5",dotcom:"~44",gfc:"~27",y22:"~39",thr:{flash:35,elev:28},dir:"high",status:"flashing",note:"Up from June, second only to the 2000 record (44), vs a ~16-17 median. 'Expensive' is a lousy timer — CAPE has sat >30 for years while stocks rose. GuruFocus implies ~1% real 10-yr return. Essentially unchanged since mid-July — the S&P finished July down just 0.1%, so the multiple hasn't budged."},
+ {id:"buffett",name:"Buffett Indicator (Mktcap/GDP)",cat:"valuation",realm:"market",now:"230",prev:"230",dotcom:"~140",gfc:"~105",y22:"~200",thr:{flash:150,elev:120},dir:"high",status:"flashing",note:"~2.3x GDP, a fresh all-time high above the dot-com peak. Buffett called >200% 'playing with fire.' Inflated by mega-cap global revenue, but still extreme."},
+ {id:"fwdpe",name:"S&P 500 forward P/E",cat:"valuation",realm:"market",now:"21.3",prev:"21.3",dotcom:"~24",gfc:"~15",y22:"~21",thr:{flash:21,elev:18},dir:"high",status:"flashing",note:"~21.3x (S&P forward P/E, late June) — roughly a 7-8% premium to its 10-yr average. Q2 earnings season kicks off this week as the big banks report; Q2 results split the tape: Amazon +15% on cloud, Microsoft reassuring on AI, Apple -7% on soft guidance. Earnings are delivering — the multiple is what's rich."},
+ {id:"ttmpe",name:"S&P 500 trailing P/E",cat:"valuation",realm:"market",now:"28.9",prev:"28.9",dotcom:"~30",gfc:"~17",y22:"~22",thr:{flash:25,elev:20},dir:"high",status:"flashing",note:"Near dot-com territory on trailing earnings. Bulls counter with 'FEMO' — fabulous earnings momentum — not just multiple expansion."},
+ {id:"erp",name:"Equity risk premium (est.)",cat:"valuation",realm:"market",now:"0",prev:"0",dotcom:"<0",gfc:"~0",y22:"~1",thr:{flash:1,elev:2},dir:"low",status:"flashing",note:"Stocks barely out-yield ~4.5% Treasuries — a poor setup for forward returns. With the 10-yr back at ~4.66% and the 30-yr above 5.1%, cash and bonds are real competition again."},
+ {id:"impret",name:"Implied 10-yr real return (est.)",cat:"valuation",realm:"market",now:"1.1",prev:"1.1",dotcom:"<0",gfc:"~2",y22:"~3",thr:{flash:2,elev:3.5},dir:"low",status:"flashing",note:"Vanguard/Goldman/GuruFocus cluster around ~0-3% real for the next decade from these valuations. Low bar for disappointment."},
 
- {id:"vix",name:"VIX (volatility)",cat:"internals",realm:"market",now:"16.6",prev:"~18",dotcom:"spiked",gfc:"80+",y22:"30s",thr:null,dir:"high",status:"neutral",note:"~16.6 and barely budged even as stocks sold off Monday on the Iran escalation — options markets are pricing essentially no contagion. That calm-into-weakness is the mild yellow: the market simply isn't hedged for a surprise."},
- {id:"concentration",name:"Market concentration (top-10 share)",cat:"internals",realm:"market",now:"extreme",prev:"extreme",dotcom:"high",gfc:"moderate",y22:"high",thr:null,dir:"high",status:"flashing",note:"A handful of mega-caps ('Mag-7'/AI) drive a disproportionate share of gains vs a smaller share of earnings — the classic narrow-leadership pattern seen before prior tops."},
- {id:"sentiment",name:"Consumer sentiment (UMich)",cat:"internals",realm:"real",now:"44.8",prev:"~50",dotcom:"~105",gfc:"~55",y22:"~50",thr:{flash:55,elev:70},dir:"low",status:"flashing",note:"Crisis-level pessimism, below even 2008/2022 lows — a striking split from record equity prices. The K-shaped economy in one number."},
- {id:"aicapex",name:"AI capex / speculation",cat:"internals",realm:"market",now:"~$700B",prev:"elevated",dotcom:"telecom",gfc:"housing",y22:"SPACs",thr:null,dir:"high",status:"elevated",note:"~$700B of AI capex projected this year, some firms tapping debt as spend outstrips cash flow — echoes of late-90s infra overbuild. Could also be genuinely productive; that's the debate."},
- {id:"breadth",name:"Breadth (equal- vs cap-weight)",cat:"internals",realm:"market",now:"narrow",prev:"narrow",dotcom:"narrow",gfc:"narrow",y22:"narrow",thr:null,dir:"high",status:"elevated",note:"Rotation days where most S&P names rise while the cap-weighted index falls on chip weakness — leadership is thin and jumpy."},
- {id:"btc",name:"Bitcoin (risk appetite)",cat:"internals",realm:"market",now:"~$62.5k",prev:"~$63k",dotcom:"n/a",gfc:"n/a",y22:"~$16k",thr:null,dir:"low",status:"neutral",note:"~$62-63k, off ~2% Monday on the risk-off tape — roughly half its Oct 2025 ATH (~$126k). Trading in lockstep with equity risk appetite (little diversification benefit right now); $60k is the line to watch, below which liquidations tend to cascade. ETF inflows turned positive in early July."},
+ {id:"vix",name:"VIX (volatility)",cat:"internals",realm:"market",now:"16.0",prev:"16.6",dotcom:"spiked",gfc:"80+",y22:"30s",thr:null,dir:"high",status:"neutral",note:"~16 at the July close — LOWER than mid-July despite a month that included a chip rout, three hawkish Fed dissents and a $10 move in oil. Options markets keep pricing no contagion. That persistent calm through genuine turbulence is the mild yellow: the market simply isn't hedged for a surprise."},
+ {id:"concentration",name:"Market concentration (top-10 share)",cat:"internals",realm:"market",now:"extreme",prev:"extreme",dotcom:"high",gfc:"moderate",y22:"high",thr:null,dir:"high",status:"flashing",note:"Top-10 weight remains historically extreme, but the composition cracked in July: the Mag-7 gauge fell ~5% over three months even as the index held. Concentration risk is still the structural flaw; the leadership just stopped being one-way."},
+ {id:"sentiment",stale:"UNVERIFIED",name:"Consumer sentiment (UMich)",cat:"internals",realm:"real",now:"44.8",prev:"~50",dotcom:"~105",gfc:"~55",y22:"~50",thr:{flash:55,elev:70},dir:"low",status:"flashing",note:"Crisis-level pessimism, below even 2008/2022 lows — a striking split from record equity prices. The K-shaped economy in one number."},
+ {id:"aicapex",name:"AI capex / speculation",cat:"internals",realm:"market",now:"~$700B",prev:"~$700B",dotcom:"telecom",gfc:"housing",y22:"SPACs",thr:null,dir:"high",status:"elevated",note:"~$700B projected this year, with some firms tapping debt as spend outstrips cash flow. July was the stress test: semis had their WORST MONTH SINCE 2008 on hyperscaler-spending doubts, then rebounded when Microsoft and Amazon reassured. The AI capex debate is now the market's main fault line."},
+ {id:"breadth",name:"Breadth (equal- vs cap-weight)",cat:"internals",realm:"market",now:"broadening",prev:"narrow",dotcom:"narrow",gfc:"narrow",y22:"narrow",thr:null,dir:"high",status:"neutral",note:"IMPROVED — the S&P Equal Weight index gained ~6% over the last three months while the Magnificent Seven LOST ~5%, with small caps grinding higher. Genuinely healthier participation than the narrow-leadership setup that defined the first half."},
+ {id:"btc",name:"Bitcoin (risk appetite)",cat:"internals",realm:"market",now:"~$63k",prev:"~$62.5k",dotcom:"n/a",gfc:"n/a",y22:"~$16k",thr:null,dir:"low",status:"neutral",note:"~$63k after posting a ~5-7% July gain — a turnaround from June, though still roughly half the Oct 2025 ATH (~$126k). ETF flows turned back to net inflows. Still tracks equity risk appetite closely; $60k remains the cascade line."},
 
- {id:"t10y2y",name:"Yield curve 10Y-2Y",cat:"credit",realm:"macro",now:"0.34",prev:"~0.2",dotcom:"inverted",gfc:"inverted",y22:"inverted",thr:{flash:0,elev:0.3},dir:"low",status:"benign",note:"Positive (~+34bp), with the 10-yr pushed to ~4.59% (7-week highs) on oil-driven inflation fear. No inversion signal — but the curve typically re-steepens just before recessions after un-inverting, so 'positive' isn't all-clear on its own."},
- {id:"t10y3m",name:"Yield curve 10Y-3M",cat:"credit",realm:"macro",now:"0.69",prev:"~0.4",dotcom:"inverted",gfc:"inverted",y22:"inverted",thr:{flash:0,elev:0.3},dir:"low",status:"benign",note:"The Fed's preferred curve measure, comfortably positive (+69bp). Swung in and out of inversion during 2025; now cleanly positive."},
- {id:"hyoas",name:"High-yield credit spread (OAS)",cat:"credit",realm:"macro",now:"2.7",prev:"~3.2",dotcom:"widened",gfc:"~20",y22:"~6",thr:{flash:6,elev:4.5},dir:"high",status:"benign",note:"~2.7% (ICE BofA US HY OAS, Jul 7) — near the tightest levels in years, with the recent low around 2.6. Credit markets are sanguine to the point of complacency; spreads gap wider fast when stress hits, so watch the change, not the level."},
+ {id:"t10y2y",name:"Yield curve 10Y-2Y",cat:"credit",realm:"macro",now:"0.42",prev:"0.34",dotcom:"inverted",gfc:"inverted",y22:"inverted",thr:{flash:0,elev:0.3},dir:"low",status:"benign",note:"Steepened to ~+42bp: the 10-yr rose to ~4.66% and the 30-yr above 5.19% while the 2-yr FELL to ~4.24% — classic bear steepening, the bond market pricing inflation/term-premium risk rather than growth. No inversion signal, but note the curve typically re-steepens just before recessions after un-inverting."},
+ {id:"t10y3m",name:"Yield curve 10Y-3M",cat:"credit",realm:"macro",now:"~0.87",prev:"0.69",dotcom:"inverted",gfc:"inverted",y22:"inverted",thr:{flash:0,elev:0.3},dir:"low",status:"benign",note:"The Fed's preferred curve measure, comfortably positive (~+87bp, approximate — derived from a ~4.66% 10-yr against a ~3.8% 3-month). Cleanly positive and steepening."},
+ {id:"hyoas",stale:"UNVERIFIED",name:"High-yield credit spread (OAS)",cat:"credit",realm:"macro",now:"2.7",prev:"~3.2",dotcom:"widened",gfc:"~20",y22:"~6",thr:{flash:6,elev:4.5},dir:"high",status:"benign",note:"~2.7% at the last verified read (ICE BofA US HY OAS, early July) — near the tightest in years. NOT RE-VERIFIED this cycle; credit held up through July's equity turbulence, but confirm against live FRED data before leaning on it. Spreads gap wider fast when stress hits: watch the change, not the level."},
  {id:"sloos",name:"Bank lending standards (SLOOS)",cat:"credit",realm:"macro",now:"8",prev:"~8",dotcom:"tightening",gfc:"severe",y22:"tightening",thr:{flash:40,elev:20},dir:"high",status:"neutral",note:"~+8% net tightening — modest, consistent with a slowdown rather than a credit crunch."},
  {id:"nfci",name:"Financial conditions (Chicago Fed NFCI)",cat:"credit",realm:"macro",now:"-0.50",prev:"~-0.4",dotcom:"tight",gfc:"very tight",y22:"tightening",thr:{flash:0.5,elev:0},dir:"high",status:"benign",note:"Loose (negative = accommodative). A big reason equities hold up while parts of the real economy soften — credit is still flowing."},
  {id:"htm",name:"Bank unrealized (HTM) losses",cat:"credit",realm:"macro",now:"~$5.1T",prev:"~$5T",dotcom:"n/a",gfc:"MBS",y22:"rising",thr:null,dir:"high",status:"elevated",note:"Large held-to-maturity paper losses remain a tail risk: a sudden funding shock or deposit flight could force selling (the 2023 SVB channel). Latent, not active."},
 
  {id:"sahm",name:"Sahm Rule",cat:"realecon",realm:"real",now:"0.10",prev:"0.27",dotcom:"triggered",gfc:"triggered",y22:"~0",thr:{flash:0.5,elev:0.35},dir:"high",status:"benign",note:"IMPROVED since June — back near baseline (peaked 0.43 in Nov 2025, the scare passed). Triggers a recession call at 0.50. Briefly, falsely tripped in 2024, so it's not infallible."},
- {id:"unemp",name:"Unemployment rate (U3)",cat:"realecon",realm:"real",now:"4.2",prev:"~4.3",dotcom:"rose",gfc:"10",y22:"3.5",thr:{flash:5,elev:4.5},dir:"high",status:"neutral",note:"4.2%, roughly flat-to-slightly-up. Low in absolute terms; the direction and pace matter more than the level for recession signaling."},
- {id:"payrolls",name:"Nonfarm payrolls (monthly)",cat:"realecon",realm:"real",now:"57",prev:"~120",dotcom:"negative",gfc:"negative",y22:"strong",thr:{flash:0,elev:100},dir:"low",status:"elevated",note:"+57k in June — a real slowdown (ADP +98k, also soft). Sub-100k prints are a classic yellow flag if they repeat; one month isn't a trend."},
- {id:"claims",name:"Initial jobless claims",cat:"realecon",realm:"real",now:"215",prev:"~220",dotcom:"rose",gfc:"600+",y22:"low",thr:{flash:300,elev:260},dir:"high",status:"benign",note:"~215k — still healthy. The timeliest labor read; a sustained move toward 260-300k would be the early warning."},
+ {id:"unemp",name:"Unemployment rate (U3)",cat:"realecon",realm:"real",now:"4.2",prev:"~4.3",dotcom:"rose",gfc:"10",y22:"3.5",thr:{flash:5,elev:4.5},dir:"high",status:"neutral",note:"4.2% as of the June report; the July print arrives Aug 7. Low in absolute terms — and with claims falling, the labor market is giving the Fed no reason to ease. Direction matters more than level."},
+ {id:"payrolls",name:"Nonfarm payrolls (monthly)",cat:"realecon",realm:"real",now:"57",prev:"~120",dotcom:"negative",gfc:"negative",y22:"strong",thr:{flash:0,elev:100},dir:"low",status:"elevated",note:"+57k in June — a real slowdown. The July jobs report lands Aug 7 and is the single most important number for the September hike question. Sub-100k prints are a classic yellow flag if they repeat."},
+ {id:"claims",name:"Initial jobless claims",cat:"realecon",realm:"real",now:"197",prev:"215",dotcom:"rose",gfc:"600+",y22:"low",thr:{flash:300,elev:260},dir:"high",status:"benign",note:"IMPROVED to ~197k (week ending Jul 25), after a 187-188k print that was strong enough to push hike odds up. The labor market is not cracking — which is precisely what lets the Fed stay hawkish. A sustained move toward 260-300k would be the early warning."},
  {id:"lei",name:"Conference Board LEI",cat:"realecon",realm:"real",now:"0.1",prev:"~-0.1",dotcom:"negative",gfc:"negative",y22:"negative",thr:{flash:-3,elev:-1},dir:"low",status:"neutral",note:"Ticked +0.1% in May (level ~99.3), no longer confirming imminent recession. Caveat: the LEI screamed 'recession' through 2023-24 and was wrong — treat with skepticism."},
- {id:"gdpnow",name:"Atlanta Fed GDPNow (Q2)",cat:"realecon",realm:"real",now:"1.5",prev:"~2",dotcom:"slowing",gfc:"negative",y22:"positive",thr:{flash:0,elev:1},dir:"low",status:"neutral",note:"Tracking ~1.2-1.8% and drifting down as data softens — positive but below trend. Growth losing momentum, not contracting."},
- {id:"jolts",name:"Job openings (JOLTS)",cat:"realecon",realm:"real",now:"7.6",prev:"~7.4",dotcom:"n/a",gfc:"falling",y22:"11+",thr:{flash:6,elev:7},dir:"low",status:"benign",note:"7.6M openings, firmer than the ~7.3M expected — labor demand has stopped bleeding, which keeps the Fed cautious."},
+ {id:"gdpnow",name:"Q2 GDP (advance, annualized)",cat:"realecon",realm:"real",now:"1.5",prev:"1.5",dotcom:"slowing",gfc:"negative",y22:"positive",thr:{flash:0,elev:1},dir:"low",status:"neutral",note:"CONFIRMED at 1.5% in the advance estimate — short of the ~2.1% consensus. Positive but below trend: growth is losing momentum, not contracting. Combined with cooling core PCE, it's the 'slowing but not breaking' read."},
+ {id:"jolts",name:"Job openings (JOLTS)",cat:"realecon",realm:"real",now:"7.6",prev:"~7.4",dotcom:"n/a",gfc:"falling",y22:"11+",thr:{flash:6,elev:7},dir:"low",status:"benign",note:"7.6M openings at the last read; the June JOLTS update lands Aug 4. Labor demand has stopped bleeding, which keeps the Fed cautious."},
  {id:"savings",name:"Personal savings rate",cat:"realecon",realm:"real",now:"3.0",prev:"~3.5",dotcom:"moderate",gfc:"rose",y22:"low",thr:{flash:2,elev:4},dir:"low",status:"elevated",note:"~3% — a thin cushion. Less shock-absorption if unemployment rises or credit tightens."},
  {id:"ccdelinq",name:"Credit card delinquency",cat:"realecon",realm:"real",now:"2.9",prev:"~2.8",dotcom:"moderate",gfc:"high",y22:"low",thr:{flash:5,elev:3.5},dir:"high",status:"neutral",note:"~2.9% and grinding higher — bottom-tier consumer stress building beneath the surface, consistent with the K-shaped split."},
 
- {id:"fedfunds",name:"Fed funds target (mid)",cat:"macro",realm:"macro",now:"3.625",prev:"3.625",dotcom:"cutting",gfc:"cutting",y22:"hiking",thr:null,dir:"high",status:"elevated",note:"Held 3.50-3.75%, but the market now prices ONE MORE HIKE before year-end as the oil spike revives inflation fear — a full reversal of spring's rate-cut hopes. New Fed Chair Kevin Warsh testifies to Congress this week; CPI lands Jul 14; next FOMC Jul 28-29."},
- {id:"cpi",name:"CPI inflation (YoY)",cat:"macro",realm:"macro",now:"4.2",prev:"~3.5",dotcom:"moderate",gfc:"falling",y22:"9",thr:{flash:5,elev:3},dir:"high",status:"elevated",note:"~4.2% and sticky — more than double the Fed's 2% goal. Tariffs, supply chains, AI-driven demand and oil all pulling upward, which is why the Fed can't ease."},
- {id:"oil",name:"Oil / WTI crude",cat:"macro",realm:"macro",now:"75",prev:"~96",dotcom:"spiked",gfc:"spiked",y22:"120",thr:{flash:100,elev:80},dir:"high",status:"neutral",note:"~$75, up ~4% Monday as the US-Iran ceasefire broke down again and Trump reinstated a Strait of Hormuz blockade. Still well off the ~$96 spring-war spike — a shipping workaround is keeping the war premium contained for now. An oil shock is both a growth tax AND an inflation impulse — the worst combo for the Fed."},
- {id:"geopol",name:"Geopolitical risk (US-Iran / Hormuz)",cat:"macro",realm:"macro",now:"severe",prev:"high",dotcom:"low",gfc:"low",y22:"Ukraine",thr:null,dir:"high",status:"elevated",note:"Escalated over the weekend — the US ran its fourth strike in a week on Iran after the IRGC attacked a container ship; Trump reinstated a Hormuz blockade and Iran declared the strait closed 'until further notice.' Vessel traffic hit a 5-week low. Markets still treat it as a limited conflict — until they don't."},
+ {id:"fedfunds",name:"Fed funds target (mid)",cat:"macro",realm:"macro",now:"3.625",prev:"3.625",dotcom:"cutting",gfc:"cutting",y22:"hiking",thr:null,dir:"high",status:"elevated",note:"Held 3.50-3.75% on Jul 29 for a fifth straight meeting — but the vote was 9-3, with Hammack, Kashkari and Logan all dissenting FOR A HIKE. That's the most one-directional dissents since 2016. Markets price ~61% odds of a September hike and one-to-two hikes by year-end; Warsh insists the target 'is 2%' and has abandoned forward guidance. Next FOMC Sept 15-16."},
+ {id:"cpi",name:"CPI inflation (YoY)",cat:"macro",realm:"macro",now:"3.5",prev:"4.2",dotcom:"moderate",gfc:"falling",y22:"9",thr:{flash:5,elev:3},dir:"high",status:"elevated",note:"BIG IMPROVEMENT: fell to 3.5% from 4.2%, as headline CPI dropped 0.4% m/m — the largest monthly decline since April 2020 — on a 5.7% energy slump. Core cooled to 2.6% (from 2.9%) and core PCE eased too. Caveat: the disinflation came from the very oil prices that have since rebounded, so July's CPI (due Aug 12) may give some back. Warsh's response: 'that is not my view' on mission-accomplished readings."},
+ {id:"oil",name:"Oil / WTI crude",cat:"macro",realm:"macro",now:"84.7",prev:"75",dotcom:"spiked",gfc:"spiked",y22:"120",thr:{flash:100,elev:80},dir:"high",status:"neutral",note:"TIER CHANGE — ~$85, up sharply from $75 in mid-July as the Iran conflict reignited; Brent pushed toward $88. Gasoline is back near $3.98/gal nationally (~$5.20 in California). This is the single most important variable on the board right now: it directly threatens the disinflation that just showed up in CPI, and an oil shock is both a growth tax AND an inflation impulse — the worst combination for a Fed already leaning hawkish. 52-week range $55-118."},
+ {id:"geopol",name:"Geopolitical risk (US-Iran / Hormuz)",cat:"macro",realm:"macro",now:"severe",prev:"high",dotcom:"low",gfc:"low",y22:"Ukraine",thr:null,dir:"high",status:"elevated",note:"The mid-June ceasefire collapsed and hostilities resumed through July, driving oil back up and keeping a war premium embedded in energy futures into 2027. Talks have resumed in Doha aimed at a peace agreement. The market is priced for the conflict staying limited — an assumption, not a fact."},
 ];
 
+const WEIGHTS={
+  equal:{label:"Equal weight", w:{valuation:1,internals:1,credit:1,realecon:1,macro:1},
+    note:"Every indicator counts the same. Simple and transparent — but it treats a dot-com-scale valuation reading as exactly as urgent as a weekly jobless-claims print, which is arguably wrong in both directions."},
+  hard:{label:"Hard-data first", w:{valuation:0.5,internals:0.75,credit:1.5,realecon:2,macro:1},
+    note:"Down-weights valuation — a notoriously poor timing signal — and leans on labor, credit and the real economy, which are what actually date a recession. This is the closest thing to a 'will it happen soon' reading."},
+  val:{label:"Valuation first", w:{valuation:2,internals:1.5,credit:0.75,realecon:0.75,macro:1},
+    note:"Leans on price, sentiment and positioning. Better at flagging poor 10-year forward returns than at timing a downturn — a long-horizon lens, not a tactical one."}
+};
+const BASELINE_LABEL="Published Jul 13";
+const CATALYSTS=[
+  {d:"Aug 4",  n:"JOLTS job openings (June)", w:"Labor demand — the Fed is watching whether openings keep firming.", i:"med"},
+  {d:"Aug 5",  n:"ADP private payrolls (July)", w:"First read on July hiring ahead of the official print.", i:"med"},
+  {d:"Aug 7",  n:"Jobs report (July)", w:"THE number for the September hike question. June was +57k; a second sub-100k print would change the story.", i:"high"},
+  {d:"Aug 12", n:"CPI (July)", w:"Tests whether June's 3.5% disinflation survives the oil rebound. The single biggest risk to the current read.", i:"high"},
+  {d:"ongoing",n:"Oil / Strait of Hormuz", w:"~$85 WTI. Sustained moves above $100 would flip this board's character outright.", i:"high"},
+  {d:"Sep 15-16",n:"FOMC decision", w:"~61% odds of a hike priced. Three officials already dissented for one in July.", i:"high"}
+];
 let state=INDICATORS.map(d=>({...d,override:null}));
-let filter="all", showChanged=false;
+let filter="all", showChanged=false, weightKey="equal", compareKey="__published__", snapshots=[];
+
+/* ---- PERSISTENCE (degrades silently if storage is blocked) ---- */
+const LS={ edits:"mrt_edits_v1", snaps:"mrt_snaps_v1", cfg:"mrt_cfg_v1" };
+function lsGet(k,fb){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):fb; }catch(e){ return fb; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+function persistEdits(){ lsSet(LS.edits, state.map(r=>({id:r.id,now:r.now,override:r.override}))); }
+function persistCfg(){ lsSet(LS.cfg,{weightKey,compareKey}); }
+function loadPersisted(){
+  const e=lsGet(LS.edits,null);
+  if(e) e.forEach(x=>{ const r=state.find(y=>y.id===x.id); if(r){ r.now=x.now; r.override=x.override; } });
+  snapshots=lsGet(LS.snaps,[]);
+  const c=lsGet(LS.cfg,null);
+  if(c){ if(WEIGHTS[c.weightKey]) weightKey=c.weightKey; if(c.compareKey) compareKey=c.compareKey; }
+}
 
 function computeStatus(ind,raw){
   if(!ind.thr) return ind.status;
@@ -380,7 +475,22 @@ function computeStatus(ind,raw){
 const statusOf=ind=>ind.override||computeStatus(ind,ind.now);
 const gaugeColorFor=p=>p>=66?COLORS.flash:p>=40?COLORS.elev:p>=20?COLORS.neut:COLORS.benign;
 
-function score(){const pts=state.reduce((s,r)=>s+STATUS[statusOf(r)].pts,0);const max=state.length*3;return{pts,max,pct:Math.round(pts/max*100)};}
+function score(){
+  const w=WEIGHTS[weightKey].w; let pts=0,max=0;
+  state.forEach(r=>{const ww=w[r.cat]!==undefined?w[r.cat]:1; pts+=STATUS[statusOf(r)].pts*ww; max+=3*ww;});
+  return {pts:Math.round(pts*10)/10, max:Math.round(max*10)/10, pct:Math.round(pts/max*100)};
+}
+/* comparison value for the Δ column: published baseline, or a saved snapshot */
+function prevOf(r){
+  if(compareKey==="__published__") return r.prev;
+  const sn=snapshots.find(x=>x.id===compareKey);
+  return sn && sn.readings[r.id]!==undefined ? sn.readings[r.id] : r.prev;
+}
+function prevLabel(){
+  if(compareKey==="__published__") return BASELINE_LABEL;
+  const sn=snapshots.find(x=>x.id===compareKey);
+  return sn?sn.label:BASELINE_LABEL;
+}
 function counts(){const c={flashing:0,elevated:0,neutral:0,benign:0};state.forEach(r=>c[statusOf(r)]++);return c;}
 function catData(){const o={};Object.keys(CATS).forEach(c=>{const rs=state.filter(r=>r.cat===c);const pts=rs.reduce((s,r)=>s+STATUS[statusOf(r)].pts,0);o[c]={pct:rs.length?Math.round(pts/(rs.length*3)*100):0};});return o;}
 
@@ -401,9 +511,9 @@ function renderGauge(){
   const num=document.getElementById("gaugeNum");num.textContent=s.pct;num.setAttribute("fill",col);
   document.getElementById("gaugeVerdict").textContent=
     s.pct>=66?"Broadly stretched across the board.":
-    s.pct>=40?"Elevated — rich prices, benign hard data.":
+    s.pct>=40?"Elevated — rich prices, resilient data, live energy risk.":
     s.pct>=20?"Mixed / mid-cycle.":"Broadly benign.";
-  document.getElementById("gaugePts").textContent=`${s.pts} of ${s.max} risk points · ${counts().flashing} flashing`;
+  document.getElementById("gaugePts").textContent=`${s.pts} of ${s.max} pts · ${counts().flashing} flashing · ${WEIGHTS[weightKey].label.toLowerCase()}`;
   document.getElementById("gaugeCard").style.setProperty("--glow",col+"28");
 }
 
@@ -434,7 +544,7 @@ function renderWealth(){
   const cards=[
     {v:"~54%",l:"of the stock market owned by the top 1%"},
     {v:"~87-90%",l:"of all equities owned by the top 10%"},
-    {v:"44.8",l:"UMich consumer sentiment — crisis-level"},
+    {v:"~45",l:"UMich consumer sentiment — crisis-level"},
     {v:"~3%",l:"personal savings rate — thin cushion"},
   ];
   document.getElementById("wealthStats").innerHTML=cards.map(s=>`<div class="stat"><div class="v">${s.v}</div><div class="l">${s.l}</div></div>`).join("");
@@ -451,7 +561,7 @@ function renderChips(){
 function renderTable(){
   const body=document.getElementById("tableBody");
   const visible=state.filter(r=>{
-    if(showChanged) return r.now!==r.prev;
+    if(showChanged) return r.now!==prevOf(r);
     if(filter==="all") return true;
     return statusOf(r)===filter;
   });
@@ -461,13 +571,13 @@ function renderTable(){
     if(!rows.length) return;
     html+=`<div class="catrow">${CATS[cat].toUpperCase()}<span class="realm">· ${REALMS[rows[0].realm]}</span></div>`;
     rows.forEach(r=>{
-      const st=STATUS[statusOf(r)];const changed=r.now!==r.prev;
+      const st=STATUS[statusOf(r)];const pv=prevOf(r);const changed=r.now!==pv;
       html+=`<div class="irow ${statusOf(r)==='flashing'?'flash':''}" id="row-${r.id}">
         <div class="irow-top">
-          <div class="iname">${r.name}</div>
+          <div class="iname">${r.name}${r.stale?`<span class="badge stale">${r.stale}</span>`:""}</div>
           <div class="ival">
             <input value="${r.now}" oninput="onVal('${r.id}',this.value)"/>
-            <div class="prev">${r.prev}</div>
+            <div class="prev">${pv}</div>
           </div>
           <div class="idelta" id="delta-${r.id}" style="color:${changed?COLORS.elev:COLORS.dim};opacity:${changed?1:.35}">${changed?"▲":"—"}</div>
           <div class="ihist">${r.dotcom} / ${r.gfc} / ${r.y22}</div>
@@ -486,7 +596,7 @@ function renderTable(){
 
 /* ---- PATCH A SINGLE ROW (keeps input focus) ---- */
 function patchRow(id){
-  const r=state.find(x=>x.id===id);const st=STATUS[statusOf(r)];const changed=r.now!==r.prev;
+  const r=state.find(x=>x.id===id);const st=STATUS[statusOf(r)];const changed=r.now!==prevOf(r);
   const row=document.getElementById("row-"+id);
   if(row) row.classList.toggle("flash",statusOf(r)==="flashing");
   const d=document.getElementById("delta-"+id);
@@ -498,8 +608,8 @@ function patchRow(id){
 function recompute(){renderGauge();renderCounts();renderCatBars();buildTicker();}
 
 /* ---- HANDLERS ---- */
-window.onVal=(id,val)=>{const r=state.find(x=>x.id===id);r.now=val;patchRow(id);recompute();};
-window.onOverride=(id,val)=>{const r=state.find(x=>x.id===id);r.override=(val===computeStatus(r,r.now))?null:val;patchRow(id);recompute();};
+window.onVal=(id,val)=>{const r=state.find(x=>x.id===id);r.now=val;patchRow(id);recompute();persistEdits();};
+window.onOverride=(id,val)=>{const r=state.find(x=>x.id===id);r.override=(val===computeStatus(r,r.now))?null:val;patchRow(id);recompute();persistEdits();};
 window.setFilter=f=>{showChanged=false;filter=(filter===f&&f!=="all")?"all":f;syncControls();renderTable();renderCounts();};
 window.toggleChanged=()=>{showChanged=!showChanged;if(showChanged)filter="all";syncControls();renderTable();renderCounts();};
 function syncControls(){
@@ -507,8 +617,110 @@ function syncControls(){
   document.getElementById("btnChanged").classList.toggle("on",showChanged);
 }
 
+/* ---- SELECTS / WEIGHT NOTE ---- */
+function renderSelects(){
+  const ws=document.getElementById("wSelect");
+  ws.innerHTML=Object.keys(WEIGHTS).map(k=>`<option value="${k}" ${weightKey===k?"selected":""}>${WEIGHTS[k].label}</option>`).join("");
+  document.getElementById("weightNote").textContent=WEIGHTS[weightKey].note;
+  const cs=document.getElementById("cmpSelect");
+  cs.innerHTML=[`<option value="__published__" ${compareKey==="__published__"?"selected":""}>${BASELINE_LABEL}</option>`]
+    .concat(snapshots.map(sn=>`<option value="${sn.id}" ${compareKey===sn.id?"selected":""}>${sn.label}</option>`)).join("");
+  const th=document.querySelector(".thead div:nth-child(2)");
+  if(th) th.textContent="NOW / "+prevLabel().toUpperCase().replace("PUBLISHED ","");
+}
+
+/* ---- CATALYSTS ---- */
+function renderCatalysts(){
+  const col={high:COLORS.flash,med:COLORS.elev,low:COLORS.neut};
+  const lab={high:"HIGH",med:"MEDIUM",low:"LOW"};
+  document.getElementById("catalysts").innerHTML=CATALYSTS.map(c=>`
+    <div class="cat-item">
+      <div class="cat-date">${c.d}</div>
+      <div><div class="cat-name">${c.n}</div><div class="cat-why">${c.w}</div></div>
+      <div class="cat-imp" style="color:${col[c.i]};border-color:${col[c.i]}66;background:${col[c.i]}14">${lab[c.i]}</div>
+    </div>`).join("");
+}
+
+/* ---- HISTORY SPARKLINE ---- */
+function renderHistory(){
+  const el=document.getElementById("histChart"), list=document.getElementById("snapList");
+  const pts=snapshots.map(sn=>({label:sn.label,pct:sn.pct})).concat([{label:"now",pct:score().pct}]);
+  if(snapshots.length===0){
+    el.innerHTML=`<div class="hist-empty">No snapshots yet. Hit <b style="color:var(--text)">＋ Save snapshot</b> to freeze today's readings — then the Δ column can compare against it later, and the composite gets plotted here over time. Stored in this browser only.</div>`;
+    list.innerHTML=""; return;
+  }
+  const W=340,H=90,pad=8;
+  const max=Math.max(...pts.map(p=>p.pct),60), min=Math.min(...pts.map(p=>p.pct),0);
+  const x=i=>pad+(i*(W-pad*2))/Math.max(pts.length-1,1);
+  const y=v=>H-pad-((v-min)/Math.max(max-min,1))*(H-pad*2);
+  const path=pts.map((p,i)=>`${i?"L":"M"}${x(i).toFixed(1)},${y(p.pct).toFixed(1)}`).join(" ");
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block;margin-bottom:6px">
+    <path d="${path}" fill="none" stroke="${gaugeColorFor(pts[pts.length-1].pct)}" stroke-width="2" stroke-linejoin="round"/>
+    ${pts.map((p,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${y(p.pct).toFixed(1)}" r="3" fill="${gaugeColorFor(p.pct)}"/>
+      <text x="${x(i).toFixed(1)}" y="${(y(p.pct)-9).toFixed(1)}" text-anchor="middle" fill="#7d8aa0" style="font-family:var(--mono);font-size:9px">${p.pct}</text>`).join("")}
+  </svg>`;
+  list.innerHTML=snapshots.map(sn=>`<div class="snap-row"><span style="color:var(--text)">${sn.label}</span>
+    <span><span style="color:${gaugeColorFor(sn.pct)}">${sn.pct}</span>
+    <button class="snap-del" onclick="delSnapshot('${sn.id}')" title="delete">×</button></span></div>`).join("");
+}
+
+/* ---- TOAST ---- */
+let toastT;
+function toast(msg){
+  const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show");
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("show"),2200);
+}
+
+/* ---- HANDLERS: new ---- */
+window.setWeight=k=>{weightKey=k;persistCfg();renderSelects();recompute();renderHistory();};
+window.setCompare=k=>{compareKey=k;persistCfg();renderSelects();renderTable();};
+window.saveSnapshot=()=>{
+  const d=new Date();
+  const label=d.toLocaleDateString("en-US",{month:"short",day:"numeric"})+" "+d.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"});
+  const readings={}; state.forEach(r=>readings[r.id]=r.now);
+  snapshots.push({id:"s"+Date.now(), label, pct:score().pct, readings});
+  if(snapshots.length>12) snapshots.shift();
+  lsSet(LS.snaps,snapshots); renderSelects(); renderHistory(); toast("Snapshot saved — "+label);
+};
+window.delSnapshot=id=>{
+  snapshots=snapshots.filter(x=>x.id!==id);
+  if(compareKey===id) compareKey="__published__";
+  lsSet(LS.snaps,snapshots); persistCfg(); renderSelects(); renderHistory(); renderTable();
+};
+window.copySummary=()=>{
+  const sc=score(), c=counts();
+  const flash=state.filter(r=>statusOf(r)==="flashing").map(r=>`  - ${r.name}: ${r.now}`).join("\n");
+  const moved=state.filter(r=>r.now!==prevOf(r)).map(r=>`  - ${r.name}: ${prevOf(r)} -> ${r.now}`).join("\n");
+  const txt=`MACRO RISK TERMINAL - composite ${sc.pct}/100 (${WEIGHTS[weightKey].label})
+${c.flashing} flashing / ${c.elevated} elevated / ${c.neutral} neutral / ${c.benign} benign
+
+FLASHING:
+${flash||"  (none)"}
+
+CHANGED vs ${prevLabel()}:
+${moved||"  (none)"}
+
+Conditions gauge, not a timing tool. Not financial advice.`;
+  const done=()=>toast("Summary copied to clipboard");
+  if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(done).catch(()=>fallback()); }
+  else fallback();
+  function fallback(){
+    const ta=document.createElement("textarea"); ta.value=txt; document.body.appendChild(ta); ta.select();
+    try{document.execCommand("copy");done();}catch(e){toast("Copy failed — select manually");}
+    document.body.removeChild(ta);
+  }
+};
+window.resetAll=()=>{
+  if(!confirm("Reset all values and overrides to the published Aug 2 readings? Saved snapshots are kept.")) return;
+  state=INDICATORS.map(d=>({...d,override:null}));
+  filter="all"; showChanged=false; compareKey="__published__";
+  try{localStorage.removeItem(LS.edits);}catch(e){}
+  persistCfg(); renderSelects(); syncControls(); renderTable(); recompute(); renderHistory(); toast("Reset to published readings");
+};
+
 /* ---- INIT ---- */
-buildTicker();renderGauge();renderCounts();renderCatBars();renderWealth();renderChips();renderTable();syncControls();
+loadPersisted();renderSelects();buildTicker();renderGauge();renderCounts();renderCatBars();renderWealth();renderChips();renderTable();renderCatalysts();renderHistory();syncControls();
 </script>
+  <div class="toast" id="toast"></div>
 </body>
 </html>
