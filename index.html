@@ -231,7 +231,7 @@
       </nav>
       <div class="head-meta">
         <span class="sp">S&amp;P ~7,490</span>
-        <span class="live"><span class="dot"></span>AUG 2 2026</span>
+        <span class="live"><span class="dot"></span>DATA AS OF AUG 2 2026</span>
       </div>
     </div>
   </header>
@@ -304,7 +304,7 @@
     </div>
     <div class="controls">
       <div class="tool">
-        <label>COMPARE VS</label>
+        <label>Δ MEASURED VS</label>
         <select id="cmpSelect" onchange="setCompare(this.value)"></select>
       </div>
       <div class="tool">
@@ -319,7 +319,7 @@
     <div class="board-scroll">
       <div class="board">
         <div class="thead">
-          <div>INDICATOR</div><div>NOW / JUL 13</div><div>Δ</div><div>DOT-COM / '08 / '22</div><div>STATUS</div>
+          <div>INDICATOR</div><div>NOW (AUG 2) / WAS</div><div>Δ</div><div>DOT-COM / '08 / '22</div><div>STATUS</div>
         </div>
         <div id="tableBody"></div>
       </div>
@@ -370,7 +370,7 @@
   <footer>
     <div class="wrap foot">
       <div>MACRO RISK TERMINAL · conditions gauge · not a timing tool</div>
-      <div>Updated AUG 2 2026 · baseline reset to Jul 13</div>
+      <div>Data as of AUG 2 2026 (last close Jul 31) · Δ measured vs Jul 13</div>
     </div>
   </footer>
 
@@ -431,7 +431,7 @@ const WEIGHTS={
   val:{label:"Valuation first", w:{valuation:2,internals:1.5,credit:0.75,realecon:0.75,macro:1},
     note:"Leans on price, sentiment and positioning. Better at flagging poor 10-year forward returns than at timing a downturn — a long-horizon lens, not a tactical one."}
 };
-const BASELINE_LABEL="Published Jul 13";
+const BASELINE_LABEL="Jul 13 (prior update)";
 const CATALYSTS=[
   {d:"Aug 4",  n:"JOLTS job openings (June)", w:"Labor demand — the Fed is watching whether openings keep firming.", i:"med"},
   {d:"Aug 5",  n:"ADP private payrolls (July)", w:"First read on July hiring ahead of the official print.", i:"med"},
@@ -626,7 +626,7 @@ function renderSelects(){
   cs.innerHTML=[`<option value="__published__" ${compareKey==="__published__"?"selected":""}>${BASELINE_LABEL}</option>`]
     .concat(snapshots.map(sn=>`<option value="${sn.id}" ${compareKey===sn.id?"selected":""}>${sn.label}</option>`)).join("");
   const th=document.querySelector(".thead div:nth-child(2)");
-  if(th) th.textContent="NOW / "+prevLabel().toUpperCase().replace("PUBLISHED ","");
+  if(th) th.textContent="NOW (AUG 2) / WAS "+prevLabel().toUpperCase().replace("PUBLISHED ","");
 }
 
 /* ---- CATALYSTS ---- */
